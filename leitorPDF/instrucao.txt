@@ -1,0 +1,28 @@
+# Assinador automático de PDF
+
+Reproduz o processo do Acrobat (Usar um certificado > Assinar digitalmente) sem RPA:
+PDF na pasta `assinar` → assinatura PAdES visível acima da linha da empresa → `assinados/NOME_ASSINADO.pdf`.
+
+## Instalação (máquina dedicada, Windows)
+    pip install -r requirements.txt
+
+## Configuração (`config.py`)
+1. Ajuste `BASE` (pasta raiz).
+2. Pegue o thumbprint de cada certificado no PowerShell:
+       Get-ChildItem Cert:\CurrentUser\My | Format-List Subject, Thumbprint, NotAfter
+   e cole em `CERTIFICADOS`.
+3. Alternativa: exporte o .pfx, use `"tipo": "pfx"` e guarde a senha numa variável de ambiente
+   (`setx SENHA_CERT_CAW "senha"`), nunca no código.
+
+## Uso
+    python assinador.py --uma-vez   # teste
+    python assinador.py             # monitora a cada 30 s
+
+Para rodar sempre: Agendador de Tarefas do Windows > "Ao fazer logon" > `pythonw assinador.py`.
+
+## Pastas
+- `assinar`   → entrada (CEO coloca os PDFs validados)
+- `assinados` → saída assinada
+- `originais` → original preservado
+- `erro`      → não achou a empresa no PDF ou falhou (ver log)
+- `log_assinaturas.csv` → data, arquivo, status, empresa, hashes SHA-256 antes/depois
